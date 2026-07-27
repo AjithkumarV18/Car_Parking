@@ -1,0 +1,77 @@
+services:
+  mongodb:
+    image: mongo:8.0
+    container_name: parking-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --username $$MONGO_INITDB_ROOT_USERNAME --password $$MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin --eval \"db.adminCommand('ping').ok\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - parking-network
+
+  backend:
+    build:
+      context: ./backend
+    container_name: parking-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017
+      MONGODB_DATABASE: ${MONGO_INITDB_DATABASE}
+    ports:
+      - "8000:8000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - parking-network
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api/v1}
+    container_name: parking-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - parking-network
+
+  seed:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017
+      MONGODB_DATABASE: ${MONGO_INITDB_DATABASE}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@demo.parking}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-ChangeMe123!}
+      SEED_SUPER_ADMIN_EMAIL: ${SEED_SUPER_ADMIN_EMAIL:-superadmin@demo.parking}
+      SEED_SUPER_ADMIN_PASSWORD: ${SEED_SUPER_ADMIN_PASSWORD:-ChangeMe123!}
+    command: ["python", "scripts/seed_demo.py"]
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - parking-network
+    profiles: ["tools"]
+
+volumes:
+  mongo-data:
+
+networks:
+  parking-network:
+    driver: bridge

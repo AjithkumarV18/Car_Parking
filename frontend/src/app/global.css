@@ -1,0 +1,101 @@
+:root {
+  font-family: Inter, Roboto, Helvetica, Arial, sans-serif;
+  color: #18212f;
+  background: #f7f9fc;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+
+@media print {
+  body.printing-thermal-receipt #root {
+    visibility: hidden;
+  }
+
+  body.printing-thermal-receipt .MuiAppBar-root,
+  body.printing-thermal-receipt .MuiButton-root,
+  body.printing-thermal-receipt .MuiIconButton-root,
+  body.printing-thermal-receipt .MuiDialog-root {
+    display: none !important;
+  }
+
+  body.printing-thermal-receipt .MuiDialog-root.parking-receipt-dialog {
+    display: flex !important;
+    position: fixed !important;
+    inset: 0 !important;
+    visibility: visible !important;
+  }
+
+  .parking-receipt-dialog,
+  .parking-receipt-dialog * {
+    visibility: visible !important;
+  }
+
+  .parking-receipt-dialog .MuiBackdrop-root {
+    display: none !important;
+  }
+
+  .parking-receipt-dialog .MuiDialog-container {
+    align-items: flex-start !important;
+  }
+
+  .parking-receipt-dialog .MuiPaper-root {
+    box-shadow: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    background: #fff !important;
+  }
+
+  .parking-receipt-dialog .receipt-dialog-title,
+  .parking-receipt-dialog .receipt-dialog-actions {
+    display: none !important;
+  }
+
+  .parking-receipt-dialog .MuiDialogContent-root {
+    border: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  .parking-receipt-content {
+    box-shadow: none !important;
+    margin: 0 auto !important;
+    min-height: 0 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .parking-receipt-content.receipt-width-58 {
+    width: 58mm !important;
+    padding: 2mm !important;
+  }
+
+  .parking-receipt-content.receipt-width-80 {
+    width: 80mm !important;
+    padding: 3mm !important;
+  }
+
+  .parking-receipt-content .receipt-divider {
+    border-color: #000 !important;
+    border-style: dashed !important;
+  }
+
+  body.printing-thermal-receipt main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .operator-screen .MuiInputBase-input,
+  .operator-screen .MuiInputLabel-root {
+    font-size: 1.08rem;
+  }
+}
+
+.operator-screen .MuiInputBase-input { font-size: 1.1rem; }
+.operator-screen .MuiInputLabel-root { font-size: 1rem; }

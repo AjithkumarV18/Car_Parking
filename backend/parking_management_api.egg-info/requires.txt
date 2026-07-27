@@ -1,0 +1,15 @@
+fastapi<1.0,>=0.115
+uvicorn[standard]<1.0,>=0.32
+motor<4.0,>=3.6
+pydantic-settings<3.0,>=2.6
+PyJWT[crypto]<3.0,>=2.10
+pwdlib[argon2]<1.0,>=0.2
+email-validator<3.0,>=2.2
+reportlab<5.0,>=4.2
+python-json-logger<4.0,>=3.2
+
+[dev]
+httpx<1.0,>=0.28
+pytest<9.0,>=8.3
+pytest-asyncio<1.0,>=0.24
+ruff<1.0,>=0.8

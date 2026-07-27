@@ -1,0 +1,43 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Published image tag to deploy (for example v1.2.3)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          test -n "$DEPLOY_SSH_KEY"
+          test -n "$DEPLOY_HOST"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+      - name: Pull and restart the approved release
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          GHCR_OWNER: ${{ github.repository_owner }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && \
+            BACKEND_IMAGE=ghcr.io/$GHCR_OWNER/parking-backend:$IMAGE_TAG \
+            FRONTEND_IMAGE=ghcr.io/$GHCR_OWNER/parking-frontend:$IMAGE_TAG \
+            NGINX_IMAGE=ghcr.io/$GHCR_OWNER/parking-nginx:$IMAGE_TAG \
+            docker compose --env-file .env.production -f docker-compose.prod.yml pull && \
+            docker compose --env-file .env.production -f docker-compose.prod.yml up -d --remove-orphans"

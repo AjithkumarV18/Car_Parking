@@ -1,0 +1,42 @@
+name: Release Images
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image: parking-backend
+            context: ./backend
+            file: ./backend/Dockerfile
+          - image: parking-frontend
+            context: ./frontend
+            file: ./frontend/Dockerfile
+          - image: parking-nginx
+            context: .
+            file: ./deployment/nginx/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
+          push: true
+          build-args: ${{ matrix.image == 'parking-frontend' && 'VITE_API_BASE_URL=/api/v1' || '' }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ github.ref_name }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:latest

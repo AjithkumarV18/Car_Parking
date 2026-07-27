@@ -1,0 +1,1 @@
+"""Dashboard analytics application service."""

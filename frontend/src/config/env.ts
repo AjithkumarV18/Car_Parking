@@ -1,4 +1,4 @@
-const DEFAULT_API_URL = 'http://localhost:8000/api/v1';
+const DEFAULT_API_URL = "/api/v1";
 
 function parsePositiveInteger(value: string | undefined, fallback: number): number {
   const parsed = Number.parseInt(value ?? '', 10);

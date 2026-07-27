@@ -1,37 +1,17 @@
-# Environment and secrets
-.env
-.env.*
-!.env.example
-!.env.production.example
-!backend/.env.production.example
-
 # Python
 __pycache__/
 *.py[cod]
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
 .venv/
 venv/
-
-# Node / frontend
-node_modules/
-dist/
-.vite/
-*.tsbuildinfo
-
-# IDE / OS
-.idea/
 .vscode/
-!.vscode/extensions.json
-.DS_Store
-Thumbs.db
+# Environment secrets
+.env
 
-# Logs
-*.log
-logs/
+# PyInstaller
+backend/build/
+backend/dist/
+*.pyc
 
-# Docker data
-mongo-data/
+# React
+frontend/node_modules/
+frontend/dist/

@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.errors import register_exception_handlers
 from app.api.v1.router import api_router
@@ -25,6 +28,8 @@ from app.infrastructure.repositories.settings_repositories import initialize_set
 settings = get_settings()
 configure_logging(settings)
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+STATIC_DIR = BASE_DIR / "static"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -71,6 +76,22 @@ def create_application() -> FastAPI:
 
     register_exception_handlers(app)
     app.include_router(api_router, prefix=settings.api_v1_prefix)
+
+    if STATIC_DIR.exists():
+        app.mount(
+            "/assets",
+            StaticFiles(directory=STATIC_DIR / "assets"),
+            name="assets",
+        )
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_react_app(full_path: str):
+        requested_file = STATIC_DIR / full_path
+
+        if full_path and requested_file.exists() and requested_file.is_file():
+            return FileResponse(requested_file)
+
+        return FileResponse(STATIC_DIR / "index.html")
 
     def custom_openapi() -> dict:
         if app.openapi_schema:

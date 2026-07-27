@@ -72,8 +72,17 @@ async def test_login_and_authorized_advanced_request_against_mongodb() -> None:
             login = await client.post(
                 "/api/v1/auth/login",
                 headers=headers,
-                json={"email": "admin@integration.test", "password": "IntegrationPassword1!", "remember_me": False},
+                json={
+                    "email": "admin@integration.test",
+                    "password": "IntegrationPassword1!",
+                    "remember_me": False,
+                },
             )
+            print("Status:", login.status_code)
+            print("Response:", login.text)
+            
+            assert login.status_code == 200, login.text
+
             token = login.json()["data"]["access_token"]
             advanced = await client.get(
                 "/api/v1/advanced/parking-locations",

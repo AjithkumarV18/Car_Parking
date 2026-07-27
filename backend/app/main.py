@@ -61,7 +61,7 @@ def create_application() -> FastAPI:
         redoc_url="/redoc" if settings.docs_enabled else None,
         lifespan=lifespan,
     )
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.trusted_hosts or ["*"])
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

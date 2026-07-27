@@ -56,7 +56,7 @@ async def test_login_and_authorized_advanced_request_against_mongodb() -> None:
         await database.users.insert_one(
             {
                 "company_id": company_id,
-                "email": "admin@integration.test",
+                "email": "admin@integration.com",
                 "password_hash": password_hasher.hash("IntegrationPassword1!"),
                 "display_name": "Integration Admin",
                 "status": "active",
@@ -73,14 +73,14 @@ async def test_login_and_authorized_advanced_request_against_mongodb() -> None:
                 "/api/v1/auth/login",
                 headers=headers,
                 json={
-                    "email": "admin@integration.test",
+                    "email": "admin@integration.com",
                     "password": "IntegrationPassword1!",
                     "remember_me": False,
                 },
             )
             print("Status:", login.status_code)
             print("Response:", login.text)
-            
+
             assert login.status_code == 200, login.text
 
             token = login.json()["data"]["access_token"]

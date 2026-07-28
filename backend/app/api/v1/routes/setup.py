@@ -52,7 +52,7 @@ class InitialEmployeeRequest(BaseModel):
     address: AddressPayload
     designation: str = Field(min_length=2, max_length=100)
     username: str = Field(min_length=3, max_length=40, pattern=r"^[A-Za-z0-9._-]+$")
-    password: str = Field(min_length=12, max_length=128)
+    password: str = Field(min_length=3, max_length=128)
     salary: Decimal = Field(default=Decimal("0.00"), ge=0, max_digits=14, decimal_places=2)
     joining_date: date = Field(default_factory=date.today)
 
@@ -83,15 +83,9 @@ class InitialEmployeeRequest(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def strong_password(cls, value: str) -> str:
-        requirements = (
-            any(character.islower() for character in value),
-            any(character.isupper() for character in value),
-            any(character.isdigit() for character in value),
-            any(not character.isalnum() for character in value),
-        )
-        if not all(requirements):
-            raise ValueError("Password must include upper, lower, number, and special characters.")
+    def reject_blank_password(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Password cannot be blank.")
         return value
 
 

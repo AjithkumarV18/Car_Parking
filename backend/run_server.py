@@ -52,7 +52,7 @@ if __name__ == "__main__":
         raise RuntimeError("ParkingApp server failed to start.")
 
     webview.create_window(
-        title="Parking Management System",
+        title="PMS",
         url=APP_URL,
         width=1400,
         height=850,

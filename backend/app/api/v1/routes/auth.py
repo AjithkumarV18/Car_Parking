@@ -18,31 +18,36 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 class PasswordPayload(BaseModel):
-    password: str = Field(min_length=12, max_length=128)
+    password: str = Field(min_length=3, max_length=128)
 
     @field_validator("password")
     @classmethod
-    def enforce_password_strength(cls, value: str) -> str:
-        requirements = (
-            any(char.islower() for char in value),
-            any(char.isupper() for char in value),
-            any(char.isdigit() for char in value),
-            any(not char.isalnum() for char in value),
-        )
-        if not all(requirements):
-            raise ValueError("Password must include upper, lower, number, and special characters.")
+    def reject_blank_password(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Password cannot be blank.")
         return value
 
 
 class RegisterRequest(PasswordPayload):
     email: EmailStr
     display_name: str = Field(min_length=2, max_length=120)
+    username: str = Field(min_length=3, max_length=40, pattern=r"^[A-Za-z0-9._-]+$")
     remember_me: bool = False
+
+    @field_validator("username", mode="before")
+    @classmethod
+    def normalize_username(cls, value: str) -> str:
+        return value.strip().lower()
 
 
 class LoginRequest(PasswordPayload):
-    email: EmailStr
+    username: str = Field(min_length=3, max_length=120)
     remember_me: bool = False
+
+    @field_validator("username", mode="before")
+    @classmethod
+    def normalize_login_name(cls, value: str) -> str:
+        return value.strip().lower()
 
 
 class RefreshRequest(BaseModel):
@@ -108,6 +113,7 @@ async def register(
         email=str(payload.email),
         password=payload.password,
         display_name=payload.display_name,
+        username=payload.username,
         remember_me=payload.remember_me,
     )
     return success_response(TokenPairResponse.model_validate(tokens), message="Account registered successfully.")
@@ -121,7 +127,7 @@ async def login(
 ) -> ApiResponse[TokenPairResponse]:
     tokens = await service.login(
         company_id,
-        email=str(payload.email),
+        username=payload.username,
         password=payload.password,
         remember_me=payload.remember_me,
     )

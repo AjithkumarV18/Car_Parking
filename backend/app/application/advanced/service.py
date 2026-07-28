@@ -122,7 +122,7 @@ class AdvancedParkingService:
         reservations = {
             item["parking_slot_id"]: item
             async for item in self.database.reserved_slots.find(
-                {"company_id": company, "status": "active", "valid_from": {"$lte": now}, "valid_until": {"$gt": now}}
+                {"company_id": company, "status": "active", "valid_until": {"$gt": now}}
             )
         }
         result: list[dict[str, Any]] = []
@@ -255,7 +255,7 @@ class AdvancedParkingService:
         return {**_public(updated), "slot_number": slot.get("slot_number") if slot else None}
 
     async def _sync_slot_reservation_status(self, company: ObjectId, slot_id: ObjectId) -> None:
-        """Reflect a currently active reservation without blocking future reservations early."""
+        """Reflect an active reservation immediately, including one that starts later."""
 
         slot = await self.database.parking_slots.find_one({"_id": slot_id, "company_id": company})
         if not slot or slot.get("status") in {"occupied", "maintenance"}:
@@ -266,7 +266,6 @@ class AdvancedParkingService:
                 "company_id": company,
                 "parking_slot_id": slot_id,
                 "status": "active",
-                "valid_from": {"$lte": now},
                 "valid_until": {"$gt": now},
             }
         )

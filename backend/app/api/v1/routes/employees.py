@@ -39,19 +39,13 @@ class AddressPayload(BaseModel):
 
 
 class PasswordPayload(BaseModel):
-    password: str = Field(min_length=12, max_length=128)
+    password: str = Field(min_length=3, max_length=128)
 
     @field_validator("password")
     @classmethod
-    def strong_password(cls, value: str) -> str:
-        requirements = (
-            any(char.islower() for char in value),
-            any(char.isupper() for char in value),
-            any(char.isdigit() for char in value),
-            any(not char.isalnum() for char in value),
-        )
-        if not all(requirements):
-            raise ValueError("Password must include upper, lower, number, and special characters.")
+    def reject_blank_password(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Password cannot be blank.")
         return value
 
 
@@ -106,7 +100,7 @@ class EmployeeUpdate(BaseModel):
     address: AddressPayload | None = None
     designation: str | None = Field(default=None, min_length=2, max_length=100)
     username: str | None = Field(default=None, min_length=3, max_length=40, pattern=r"^[A-Za-z0-9._-]+$")
-    password: str | None = Field(default=None, min_length=12, max_length=128)
+    password: str | None = Field(default=None, min_length=3, max_length=128)
     role_id: str | None = None
     salary: Decimal | None = Field(default=None, ge=0, max_digits=14, decimal_places=2)
     joining_date: date | None = None
@@ -135,17 +129,11 @@ class EmployeeUpdate(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def strong_updated_password(cls, value: str | None) -> str | None:
+    def reject_blank_updated_password(cls, value: str | None) -> str | None:
         if value is None:
             return value
-        requirements = (
-            any(char.islower() for char in value),
-            any(char.isupper() for char in value),
-            any(char.isdigit() for char in value),
-            any(not char.isalnum() for char in value),
-        )
-        if not all(requirements):
-            raise ValueError("Password must include upper, lower, number, and special characters.")
+        if not value.strip():
+            raise ValueError("Password cannot be blank.")
         return value
 
     @model_validator(mode="after")

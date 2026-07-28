@@ -116,7 +116,7 @@ export function InitialEmployeeSetupPage() {
     <Grid2 size={{ xs: 12, sm: 4 }}><TextField label="Phone" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} placeholder="9876543210" helperText="10-digit Indian mobile accepted" required fullWidth /></Grid2>
     <Grid2 size={{ xs: 12, sm: 6 }}><TextField label="Designation" value={form.designation} onChange={(event) => setForm({ ...form, designation: event.target.value })} required fullWidth /></Grid2>
     <Grid2 size={{ xs: 12, sm: 6 }}><TextField label="Username" value={form.username} onChange={(event) => setForm({ ...form, username: event.target.value })} required fullWidth /></Grid2>
-    <Grid2 size={12}><TextField label="Password" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} helperText="At least 12 characters with upper, lower, number, and special character" required fullWidth /></Grid2>
+    <Grid2 size={12}><TextField label="Password" type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} inputProps={{ minLength: 3 }} helperText="At least 3 characters" required fullWidth /></Grid2>
     <Grid2 size={12}><TextField label="Address line 1" value={form.address.line1} onChange={(event) => address('line1', event.target.value)} required fullWidth /></Grid2>
     <Grid2 size={{ xs: 12, sm: 4 }}><TextField label="City" value={form.address.city} onChange={(event) => address('city', event.target.value)} required fullWidth /></Grid2>
     <Grid2 size={{ xs: 12, sm: 4 }}><TextField label="State" value={form.address.state} onChange={(event) => address('state', event.target.value)} required fullWidth /></Grid2>

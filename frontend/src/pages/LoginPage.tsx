@@ -13,7 +13,7 @@ export function LoginPage() {
   const { setSession } = useAuth();
   const { company, status, loading: companyLoading, error: companyError } = usePublicCompany();
   const companyId = company?.id ?? searchParams.get('companyId') ?? '';
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string>();
@@ -31,7 +31,7 @@ export function LoginPage() {
     setError(undefined);
     setSubmitting(true);
     try {
-      const response = await authApi.login(companyId, { email, password, remember_me: rememberMe });
+      const response = await authApi.login(companyId, { username, password, remember_me: rememberMe });
       if (!response.data) throw new Error(response.message);
       setSession(response.data.access_token, response.data.refresh_token, rememberMe, toAuthenticatedUser(response.data.user));
       navigate('/app', { replace: true });
@@ -47,8 +47,8 @@ export function LoginPage() {
       <CompanyIdentity company={company} loading={companyLoading} title="Sign in" description="Use your account credentials to access this parking workspace." />
       {(error || companyError) && <Alert severity="error">{error ?? 'Unable to load the active company details. Please retry.'}</Alert>}
       {!companyLoading && !company && !companyError && <Alert severity="warning">No active company is available. Complete company setup first.</Alert>}
-      <TextField label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoComplete="email" disabled={companyLoading || !companyId} />
-      <TextField label="Password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required autoComplete="current-password" disabled={companyLoading || !companyId} />
+      <TextField label="Username" value={username} onChange={(event) => setUsername(event.target.value)} required autoComplete="username" inputProps={{ minLength: 3 }} disabled={companyLoading || !companyId} />
+      <TextField label="Password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required autoComplete="current-password" inputProps={{ minLength: 3 }} disabled={companyLoading || !companyId} />
       <FormControlLabel control={<Checkbox checked={rememberMe} onChange={(event) => setRememberMe(event.target.checked)} disabled={companyLoading || !companyId} />} label="Remember me on this device" />
       <Button type="submit" variant="contained" disabled={submitting || companyLoading || !companyId}>{submitting ? 'Signing in...' : 'Sign in'}</Button>
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between"><Button component={Link} to="/forgot-password">Forgot password?</Button><Button component={Link} to="/register">Create account</Button></Stack>

@@ -28,7 +28,7 @@ export function ResetPasswordPage() {
     {error && <Alert severity="error">{error}</Alert>}
     <TextField label="Company ID" value={companyId} onChange={(event) => setCompanyId(event.target.value)} required />
     <TextField label="Reset token" value={token} onChange={(event) => setToken(event.target.value)} required multiline minRows={3} />
-    <TextField label="New password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required helperText="At least 12 characters, upper, lower, number, special character." />
+    <TextField label="New password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} required inputProps={{ minLength: 3 }} helperText="At least 3 characters" />
     <Button type="submit" variant="contained">Reset password</Button>
     <Button component={Link} to="/login">Return to sign in</Button>
   </Stack></Paper>;

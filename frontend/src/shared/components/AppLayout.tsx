@@ -96,11 +96,11 @@ export function AppLayout() {
   const visibleGroups = groups.map((group) => ({ ...group, items: group.items.filter(canView) })).filter((group) => group.items.length > 0);
   const navigation = <NavigationTree groups={visibleGroups} expanded={expanded} activePath={location.pathname} companyName={companyName} companyLogo={companyLogo} workspaceLabel={t('Parking workspace')} securityLabel={t('Secure parking operations')} onToggle={(key) => setExpanded((current) => ({ ...current, [key]: !current[key] }))} onNavigate={() => setMobileOpen(false)} />;
 
-  return <Box minHeight="100vh" display="flex" bgcolor="background.default">
-    {user && <Drawer variant="permanent" sx={{ display: { xs: 'none', md: 'block' }, width: drawerWidth, flexShrink: 0, '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box', borderRight: 0, bgcolor: 'background.paper', boxShadow: 1 } }}>{navigation}</Drawer>}
+  return <Box minHeight="100vh" display="flex" alignItems="stretch" gap={{ md: 1.5 }} p={{ xs: 1, sm: 1.25, md: 1.5 }} bgcolor="background.default">
+    {user && <Drawer variant="permanent" sx={{ display: { xs: 'none', md: 'block' }, width: drawerWidth, flexShrink: 0, '& .MuiDrawer-paper': { position: 'relative', width: drawerWidth, height: '100%', boxSizing: 'border-box', border: 0, borderRadius: 3, overflow: 'hidden', bgcolor: 'background.paper', boxShadow: 2 } }}>{navigation}</Drawer>}
     {user && <Drawer variant="temporary" open={mobileOpen} onClose={() => setMobileOpen(false)} ModalProps={{ keepMounted: true }} sx={{ display: { xs: 'block', md: 'none' }, '& .MuiDrawer-paper': { width: drawerWidth } }}>{navigation}</Drawer>}
-    <Box flexGrow={1} minWidth={0}>
-      <AppBar position="sticky" elevation={0} sx={(theme) => ({ overflow: 'hidden', background: `linear-gradient(115deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, borderBottom: `1px solid ${alpha(theme.palette.common.white, 0.14)}`, '&::after': { content: '""', position: 'absolute', zIndex: 0, width: 310, height: 310, right: -100, top: -190, borderRadius: '50%', bgcolor: alpha(theme.palette.secondary.main, 0.24) } })}>
+    <Box flexGrow={1} minWidth={0} display="flex" flexDirection="column">
+      <AppBar position="sticky" elevation={0} sx={(theme) => ({ overflow: 'hidden', borderRadius: 3, background: `linear-gradient(115deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`, borderBottom: `1px solid ${alpha(theme.palette.common.white, 0.14)}`, '&::after': { content: '""', position: 'absolute', zIndex: 0, width: 310, height: 310, right: -100, top: -190, borderRadius: '50%', bgcolor: alpha(theme.palette.secondary.main, 0.24) } })}>
         <Toolbar sx={{ position: 'relative', zIndex: 1, minHeight: { xs: 64, md: 72 } }}>
           <Stack direction="row" alignItems="center" spacing={1.25} minWidth={0} flexGrow={1}>
             {user && <IconButton color="inherit" onClick={() => setMobileOpen(true)} sx={{ display: { md: 'none' } }} aria-label={t('Menu')}><MenuIcon /></IconButton>}
@@ -113,7 +113,7 @@ export function AppLayout() {
           {user && <Tooltip title={t('Sign out')}><IconButton onClick={signOut} sx={(theme) => ({ color: theme.palette.secondary.contrastText, bgcolor: theme.palette.secondary.main, boxShadow: `0 4px 12px ${alpha(theme.palette.secondary.dark, 0.32)}`, '&:hover': { bgcolor: theme.palette.secondary.dark } })}><LogoutIcon /></IconButton></Tooltip>}
         </Toolbar>
       </AppBar>
-      <Container component="main" maxWidth="xl" sx={{ py: { xs: 2, md: 3.5 } }}><Outlet /></Container>
+      <Container component="main" maxWidth="xl" sx={{ flexGrow: 1, width: '100%', px: { xs: 0.5, sm: 1.25, md: 2 }, py: { xs: 2, md: 3 } }}><Outlet /></Container>
     </Box>
   </Box>;
 }

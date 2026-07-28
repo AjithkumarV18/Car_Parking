@@ -50,8 +50,8 @@ export function EmployeeFormDialog({ open, employee, options, onClose, onSaved }
       if (!/^[A-Z0-9_-]{3,40}$/.test(payload.employee_id)) {
         throw new Error('Employee ID must contain at least 3 letters, numbers, hyphens, or underscores.');
       }
-      if (!employee && !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/.test(payload.password ?? '')) {
-        throw new Error('Password must be at least 12 characters and include upper, lower, number, and special characters.');
+      if (!employee && (payload.password?.trim().length ?? 0) < 3) {
+        throw new Error('Password must contain at least 3 characters.');
       }
       if (employee && !payload.password) delete payload.password;
       const response = employee ? await employeeApi.update(employee.id, payload) : await employeeApi.create(payload);
@@ -73,7 +73,7 @@ export function EmployeeFormDialog({ open, employee, options, onClose, onSaved }
       <Grid2 size={{ xs: 12, sm: 6 }}><TextField label="Designation" value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })} required fullWidth /></Grid2>
       <Grid2 size={{ xs: 12, sm: 6 }}><TextField select label="Role" value={form.role_id} onChange={(e) => setForm({ ...form, role_id: e.target.value })} required fullWidth>{options.roles.map((role) => <MenuItem key={role.id} value={role.id}>{role.name}</MenuItem>)}</TextField></Grid2>
       <Grid2 size={{ xs: 12, sm: 4 }}><TextField label="Username" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required fullWidth /></Grid2>
-      <Grid2 size={{ xs: 12, sm: 4 }}><TextField label={employee ? 'New password (optional)' : 'Password'} type="password" value={form.password ?? ''} onChange={(e) => setForm({ ...form, password: e.target.value })} required={!employee} helperText="12+ chars, upper, lower, number, special" fullWidth /></Grid2>
+      <Grid2 size={{ xs: 12, sm: 4 }}><TextField label={employee ? 'New password (optional)' : 'Password'} type="password" value={form.password ?? ''} onChange={(e) => setForm({ ...form, password: e.target.value })} required={!employee} inputProps={{ minLength: 3 }} helperText="At least 3 characters" fullWidth /></Grid2>
       <Grid2 size={{ xs: 12, sm: 4 }}><TextField label="Salary" type="number" inputProps={{ min: 0, step: '0.01' }} value={form.salary} onChange={(e) => setForm({ ...form, salary: e.target.value })} required fullWidth /></Grid2>
       <Grid2 size={{ xs: 12, sm: 4 }}><TextField label="Joining date" type="date" InputLabelProps={{ shrink: true }} value={form.joining_date} onChange={(e) => setForm({ ...form, joining_date: e.target.value })} required fullWidth /></Grid2>
       <Grid2 size={{ xs: 12, sm: 4 }}><TextField select label="Parking location" value={form.parking_location_id ?? ''} onChange={(e) => setForm({ ...form, parking_location_id: e.target.value || null })} fullWidth><MenuItem value="">Not assigned</MenuItem>{options.parking_locations.map((location) => <MenuItem key={location.id} value={location.id}>{location.name}</MenuItem>)}</TextField></Grid2>

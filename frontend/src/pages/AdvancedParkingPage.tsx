@@ -140,7 +140,10 @@ export function AdvancedParkingPage() {
         status: 'active',
       });
       if (!response.data) throw new Error(response.message);
+      const createdReservation = response.data;
       notification.success('Slot reserved. It will be occupied automatically when this vehicle enters during the reservation.');
+      setSlots((current) => current.map((slot) => slot.id === reservationSlotId ? { ...slot, status: 'reserved', reserved_for: createdReservation.holder_name } : slot));
+      setReservations((current) => [createdReservation, ...current.filter((reservation) => reservation.id !== createdReservation.id)]);
       form.reset();
       setReservationSlotId('');
       await load(locationId);

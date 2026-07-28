@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from pydantic import ValidationError
 
+from app.api.v1.routes.auth import LoginRequest, RegisterRequest
 from app.api.v1.routes.companies import BranchCreate, CompanyCreate
 from app.api.v1.routes.employees import EmployeeCreate
 from app.api.v1.routes.rates import ParkingRateCreate
@@ -83,6 +84,15 @@ def test_setup_status_exposes_only_public_company_branding() -> None:
     assert status.company is not None
     assert status.company.company_name == "AK Smart Parking"
     assert status.company.theme.primary_color == "#123456"
+
+
+def test_username_login_and_registration_accept_three_character_passwords() -> None:
+    login = LoginRequest(username="  operator  ", password="abc")
+    registration = RegisterRequest(username="operator", display_name="Parking Operator", email="operator@example.com", password="123")
+
+    assert login.username == "operator"
+    assert registration.username == "operator"
+    assert registration.password == "123"
 
 
 def test_software_settings_update_rejects_empty_and_unknown_values() -> None:

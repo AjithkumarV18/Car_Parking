@@ -2,13 +2,14 @@ import { apiService } from '@/services/apiService';
 import type { AuthenticatedUser } from '@/shared/types/auth';
 
 export interface Credentials {
-  email: string;
+  username: string;
   password: string;
   remember_me: boolean;
 }
 
 export interface RegisterPayload extends Credentials {
   display_name: string;
+  email: string;
 }
 
 export interface TokenPair {

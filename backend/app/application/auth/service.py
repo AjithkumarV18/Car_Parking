@@ -122,12 +122,14 @@ class AuthService:
         email: str,
         password: str,
         display_name: str,
+        username: str,
         remember_me: bool,
     ) -> dict[str, Any]:
         await self._company_exists(company_id)
         normalized_email = email.lower().strip()
-        if await self.database.users.find_one({"email": normalized_email}):
-            raise ConflictError("An account with this email already exists.")
+        normalized_username = username.lower().strip()
+        if await self.database.users.find_one({"$or": [{"email": normalized_email}, {"username": normalized_username}]}):
+            raise ConflictError("An account with this email or username already exists.")
         viewer_role = await self.database.roles.find_one(
             {"scope": "system", "company_id": None, "code": "viewer", "status": "active"}
         )
@@ -135,6 +137,7 @@ class AuthService:
         user = {
             "company_id": ObjectId(company_id),
             "email": normalized_email,
+            "username": normalized_username,
             "password_hash": password_hasher.hash(password),
             "display_name": display_name.strip(),
             "status": "active",
@@ -147,13 +150,14 @@ class AuthService:
         user["_id"] = result.inserted_id
         return await self._issue_tokens(user, remember_me)
 
-    async def login(self, company_id: str, *, email: str, password: str, remember_me: bool) -> dict[str, Any]:
+    async def login(self, company_id: str, *, username: str, password: str, remember_me: bool) -> dict[str, Any]:
         await self._company_exists(company_id)
-        user = await self.database.users.find_one({"email": email.lower().strip(), "status": "active"})
+        identifier = username.lower().strip()
+        user = await self.database.users.find_one({"$or": [{"username": identifier}, {"email": identifier}], "status": "active"})
         if not user or not password_hasher.verify(password, user["password_hash"]):
-            raise AuthenticationError("Invalid email or password.")
+            raise AuthenticationError("Invalid username or password.")
         if not user.get("is_super_admin", False) and str(user["company_id"]) != company_id:
-            raise AuthenticationError("Invalid email or password.")
+            raise AuthenticationError("Invalid username or password.")
         await self.database.users.update_one({"_id": user["_id"]}, {"$set": {"last_login_at": datetime.now(UTC)}})
         token_user = {**user, "company_id": ObjectId(company_id)} if user.get("is_super_admin", False) else user
         return await self._issue_tokens(token_user, remember_me)
